@@ -33,7 +33,16 @@
     endpointCount: document.getElementById('endpoint-count'),
     apiVersion: document.getElementById('api-version'),
     toast: document.getElementById('toast'),
-    toastMsg: document.getElementById('toast-msg')
+    toastMsg: document.getElementById('toast-msg'),
+    btnAskAi: document.getElementById('btn-ask-ai'),
+    aiModal: document.getElementById('ai-modal'),
+    aiModalClose: document.getElementById('ai-modal-close'),
+    aiQueryInput: document.getElementById('ai-query-input'),
+    aiSubmitBtn: document.getElementById('ai-submit-btn'),
+    aiResultContainer: document.getElementById('ai-result-container'),
+    aiResponseContent: document.getElementById('ai-response-content'),
+    btnCopyAiAnswer: document.getElementById('btn-copy-ai-answer'),
+    aiChips: document.querySelectorAll('.ai-chip')
   };
 
   // Toast Notification
@@ -112,7 +121,7 @@
       });
 
       // Add a 4 second timeout for live fetch before fallback to local
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Live fetch timeout')), 4000)
       );
 
@@ -321,6 +330,86 @@
     });
   }
 
+    // Ask AI Modal Management
+  function openAiModal(initialQuery = '') {
+    if (!elements.aiModal) return;
+    elements.aiModal.classList.add('open');
+    if (initialQuery && elements.aiQueryInput) {
+      elements.aiQueryInput.value = initialQuery;
+      handleAiSearch(initialQuery);
+    } else if (elements.aiQueryInput) {
+      setTimeout(() => elements.aiQueryInput.focus(), 50);
+    }
+  }
+
+  function closeAiModal() {
+    if (!elements.aiModal) return;
+    elements.aiModal.classList.remove('open');
+  }
+
+  async function handleAiSearch(forcedQuery) {
+    const query = forcedQuery || elements.aiQueryInput?.value.trim();
+    if (!query) return;
+
+    if (elements.aiResultContainer && elements.aiResponseContent) {
+      elements.aiResultContainer.style.display = 'flex';
+      elements.aiResponseContent.innerHTML = `
+        <div class="ai-loading-state">
+          <div class="ai-loading-spinner"></div>
+          <span>Analyzing OpenAPI spec and formulating response...</span>
+        </div>
+      `;
+    }
+
+    if (elements.aiSubmitBtn) {
+      elements.aiSubmitBtn.disabled = true;
+      elements.aiSubmitBtn.style.opacity = '0.6';
+    }
+
+    try {
+      const answer = await askAI(query);
+      if (elements.aiResponseContent) {
+        elements.aiResponseContent.textContent = answer;
+      }
+    } catch (err) {
+      if (elements.aiResponseContent) {
+        elements.aiResponseContent.innerHTML = `
+          <div style="color: #ef4444; font-weight: 500;">
+            ⚠️ Error: ${err.message}
+          </div>
+        `;
+      }
+    } finally {
+      if (elements.aiSubmitBtn) {
+        elements.aiSubmitBtn.disabled = false;
+        elements.aiSubmitBtn.style.opacity = '1';
+      }
+    }
+  }
+
+  async function askAI(userQuery) {
+    const response = await fetch('/api/ask-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: userQuery })
+    });
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+    return data.answer || 'No answer returned.';
+  }
+
+  function copyAiAnswer() {
+    if (!elements.aiResponseContent) return;
+    const text = elements.aiResponseContent.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied AI response to clipboard!');
+    }).catch(() => {
+      showToast('Failed to copy response');
+    });
+  }
+
   // Bind Event Handlers
   function bindEvents() {
     elements.themeBtn?.addEventListener('click', () => {
@@ -333,13 +422,41 @@
     elements.downloadBtn?.addEventListener('click', downloadSpecJSON);
     elements.copyUrlBtn?.addEventListener('click', copySpecUrl);
 
-    // Keyboard shortcut (1 for Modern, 2 for Classic, T for Theme)
+    // Ask AI triggers
+    elements.btnAskAi?.addEventListener('click', () => openAiModal());
+    elements.aiModalClose?.addEventListener('click', closeAiModal);
+    elements.aiModal?.addEventListener('click', (e) => {
+      if (e.target === elements.aiModal) closeAiModal();
+    });
+    elements.aiSubmitBtn?.addEventListener('click', () => handleAiSearch());
+    elements.aiQueryInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleAiSearch();
+    });
+    elements.btnCopyAiAnswer?.addEventListener('click', copyAiAnswer);
+
+    elements.aiChips?.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const query = chip.getAttribute('data-query');
+        if (elements.aiQueryInput) elements.aiQueryInput.value = query;
+        handleAiSearch(query);
+      });
+    });
+
+    // Keyboard shortcut (1 for Modern, 2 for Classic, T for Theme, / or Cmd+K for AI)
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && elements.aiModal?.classList.contains('open')) {
+        closeAiModal();
+        return;
+      }
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === '1') switchViewer('scalar');
       if (e.key === '2') switchViewer('redoc');
       if (e.key === 't' || e.key === 'T') {
         applyTheme(state.currentTheme === 'dark' ? 'light' : 'dark');
+      }
+      if (e.key === '/' || ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K'))) {
+        e.preventDefault();
+        openAiModal();
       }
     });
   }

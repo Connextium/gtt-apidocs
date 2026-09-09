@@ -28,9 +28,54 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
+// Load .env.local or .env for local serverless function simulation
+function loadEnv() {
+  const envFiles = ['.env.local', '.env'];
+  for (const file of envFiles) {
+    const envPath = path.resolve(__dirname, '..', file);
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split('\n').forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const idx = trimmed.indexOf('=');
+          const key = trimmed.slice(0, idx).trim();
+          const val = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      });
+    }
+  }
+}
+loadEnv();
+
 const server = http.createServer((req, res) => {
   // Normalize request path
   let reqPath = req.url.split('?')[0];
+
+  // Route /api/ask-ai locally
+  if (reqPath === '/api/ask-ai') {
+    let bodyData = '';
+    req.on('data', chunk => { bodyData += chunk; });
+    req.on('end', () => {
+      try {
+        req.body = bodyData ? JSON.parse(bodyData) : {};
+      } catch (e) {
+        req.body = {};
+      }
+      try {
+        const handler = require('../api/ask-ai');
+        handler(req, res);
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
   if (reqPath === '/' || reqPath === '') {
     reqPath = '/index.html';
   }
