@@ -330,21 +330,31 @@
     });
   }
 
-    // Ask AI Modal Management
+  // Ask AI Slide Panel Management
   function openAiModal(initialQuery = '') {
     if (!elements.aiModal) return;
     elements.aiModal.classList.add('open');
+    elements.btnAskAi?.classList.add('active');
     if (initialQuery && elements.aiQueryInput) {
       elements.aiQueryInput.value = initialQuery;
       handleAiSearch(initialQuery);
     } else if (elements.aiQueryInput) {
-      setTimeout(() => elements.aiQueryInput.focus(), 50);
+      setTimeout(() => elements.aiQueryInput.focus(), 80);
     }
   }
 
   function closeAiModal() {
     if (!elements.aiModal) return;
     elements.aiModal.classList.remove('open');
+    elements.btnAskAi?.classList.remove('active');
+  }
+
+  function toggleAiModal() {
+    if (elements.aiModal?.classList.contains('open')) {
+      closeAiModal();
+    } else {
+      openAiModal();
+    }
   }
 
   async function handleAiSearch(forcedQuery) {
@@ -423,7 +433,7 @@
     elements.copyUrlBtn?.addEventListener('click', copySpecUrl);
 
     // Ask AI triggers
-    elements.btnAskAi?.addEventListener('click', () => openAiModal());
+    elements.btnAskAi?.addEventListener('click', toggleAiModal);
     elements.aiModalClose?.addEventListener('click', closeAiModal);
     elements.aiModal?.addEventListener('click', (e) => {
       if (e.target === elements.aiModal) closeAiModal();

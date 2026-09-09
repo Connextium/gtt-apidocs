@@ -89,48 +89,55 @@
             <path
               d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
           </svg>
-          <span>Ask AI</span>
+          <span>Ask GTT AI</span>
         </button>
 
       </div>
     </header>
 
-    <!-- Main Viewports Area -->
-    <main class="viewports-wrapper">
-      <!-- Loading State -->
-      <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Loading GTT Business Client API
-          Documentation...</p>
-      </div>
+    <!-- Main Content Area (Split View: Docs + Parallel AI Panel) -->
+    <div class="app-body-wrapper">
+      <!-- Main Viewports Area -->
+      <main class="viewports-wrapper">
+        <!-- Loading State -->
+        <div id="loading-overlay" class="loading-overlay">
+          <div class="spinner"></div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Loading GTT Business Client API Documentation...</p>
+        </div>
 
-      <!-- Scalar Container -->
-      <div id="pane-scalar" class="viewer-pane active" role="tabpanel" aria-label="Scalar Documentation"></div>
+        <!-- Scalar Container -->
+        <div id="pane-scalar" class="viewer-pane active" role="tabpanel" aria-label="Scalar Documentation"></div>
 
-      <!-- Redoc Container -->
-      <div id="pane-redoc" class="viewer-pane" role="tabpanel" aria-label="Redoc Documentation"></div>
-    </main>
+        <!-- Redoc Container -->
+        <div id="pane-redoc" class="viewer-pane" role="tabpanel" aria-label="Redoc Documentation"></div>
+      </main>
 
-    <!-- Ask AI Modal Dialog -->
-    <div id="ai-modal" class="ai-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ai-modal-title">
-      <div class="ai-modal-card">
-        <div class="ai-modal-header">
-          <div class="ai-modal-title" id="ai-modal-title">
+      <!-- Ask AI Parallel Side Panel -->
+      <aside id="ai-modal" class="ai-side-panel" aria-label="GTT AI Assistant">
+        <div class="ai-panel-header">
+          <div class="ai-panel-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
             </svg>
             <span>Ask GTT AI Assistant</span>
           </div>
-          <button id="ai-modal-close" class="action-btn icon-btn ai-close-btn" title="Close (Esc)" aria-label="Close modal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <button id="ai-modal-close" class="action-btn icon-btn ai-close-btn" title="Close Panel (Esc)" aria-label="Close panel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
-        <div class="ai-modal-body">
+        <div class="ai-panel-body">
           <div class="ai-input-wrapper">
-            <input type="text" id="ai-query-input" placeholder="Ask about endpoints, authentication, USDC payins, schemas..." autocomplete="off" />
+            <input type="text" id="ai-query-input"
+              placeholder="Ask about endpoints, authentication, USDC payins, schemas..." autocomplete="off" />
             <button id="ai-submit-btn" class="ai-submit-btn" title="Send question">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
             </button>
           </div>
 
@@ -148,14 +155,17 @@
             <div class="ai-result-header">
               <span class="ai-result-badge">AI Response</span>
               <button id="btn-copy-ai-answer" class="ai-copy-btn" title="Copy Answer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
                 <span>Copy</span>
               </button>
             </div>
             <div id="ai-response-content" class="ai-response-content"></div>
           </div>
         </div>
-      </div>
+      </aside>
     </div>
 
     <!-- Toast Feedback -->

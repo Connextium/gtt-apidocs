@@ -74,27 +74,44 @@ Instructions:
     let answer = '';
 
     if (process.env.GEMINI_API_KEY) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `${systemPrompt}\n\nUser Question: ${query}` }]
-              }
-            ]
-          })
-        }
-      );
+      const preferredModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const modelsToTry = [preferredModel, 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash'];
+      const uniqueModels = [...new Set(modelsToTry)];
 
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error.message || 'Gemini API error');
+      let lastError = null;
+      for (const model of uniqueModels) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: `${systemPrompt}\n\nUser Question: ${query}` }]
+                  }
+                ]
+              })
+            }
+          );
+
+          const data = await response.json();
+          if (data.error) {
+            lastError = new Error(data.error.message || `Error on ${model}`);
+            continue;
+          }
+          answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No answer generated.';
+          if (answer) break;
+        } catch (e) {
+          lastError = e;
+        }
       }
-      answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No answer generated.';
+
+      if (!answer && lastError) {
+        throw lastError;
+      }
     } else if (process.env.OPENAI_API_KEY) {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
