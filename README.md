@@ -12,16 +12,16 @@ A high-performance, responsive web application for exploring and testing the **G
 ## ✨ Features
 
 - 🔀 **Dual-Viewer Switcher**:
-  - **Scalar**: Modern, interactive API client with request runner, multi-language code snippets (cURL, Python, JS, Go, etc.), and search.
-  - **Redoc**: Clean 3-panel enterprise reference specification with detailed schemas and models.
+  - **Modern (Scalar)**: Interactive API client with request runner, multi-language code snippets (cURL, Python, JS, Go, etc.), and search.
+  - **Classic (Redoc)**: Clean 3-panel enterprise reference specification with detailed schemas and models.
 - 🌓 **Synchronized Dark / Light Theme**: Matches system preference with manual toggle and localStorage persistence.
 - 📦 **Dual Generation Architecture**:
   - **Live Mode**: Dynamic browser rendering with offline fallback.
   - **Static Mode**: Bundles the spec directly into `dist/index.html` for zero-latency, 100% reliable static hosting.
 - 📥 **Quick Spec Tools**: 1-click OpenAPI JSON download, live URL copy, and endpoint counter.
 - ⌨️ **Keyboard Shortcuts**:
-  - `1`: Switch to **Scalar**
-  - `2`: Switch to **Redoc**
+  - `1`: Switch to **Modern (Scalar)**
+  - `2`: Switch to **Classic (Redoc)**
   - `T`: Toggle **Dark / Light Theme**
 
 ---

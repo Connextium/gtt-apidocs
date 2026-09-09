@@ -333,7 +333,7 @@
     elements.downloadBtn?.addEventListener('click', downloadSpecJSON);
     elements.copyUrlBtn?.addEventListener('click', copySpecUrl);
 
-    // Keyboard shortcut (1 for Scalar, 2 for Redoc, T for Theme)
+    // Keyboard shortcut (1 for Modern, 2 for Classic, T for Theme)
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === '1') switchViewer('scalar');
