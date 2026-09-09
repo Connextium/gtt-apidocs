@@ -1,0 +1,22 @@
+{
+  "name": "gtt-apidocs",
+  "version": "1.0.0",
+  "description": "GTT Business Client API Documentation with Dual Scalar & Redoc Viewer",
+  "main": "scripts/dev-server.js",
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "dev": "node scripts/dev-server.js",
+    "fetch-spec": "node scripts/fetch-spec.js",
+    "build": "node scripts/build-static.js",
+    "preview": "node scripts/dev-server.js --dist"
+  },
+  "keywords": [
+    "openapi",
+    "scalar",
+    "redoc",
+    "api-documentation",
+    "gtt"
+  ],
+  "author": "Connextium",
+  "license": "MIT"
+}

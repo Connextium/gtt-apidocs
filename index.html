@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTT Business Client API Documentation</title>
+  <meta name="description" content="Interactive and Reference OpenAPI Documentation for Global Trade Treasury Business Client API">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation & Switcher Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <a href="#" class="logo-wrapper" title="Global Trade Treasury">
+          <div class="logo-icon">G</div>
+          <div class="brand-info">
+            <div class="brand-title">
+              GTT Business Client API
+              <span id="api-version" class="badge">v0.1.0</span>
+              <span id="endpoint-count" class="badge badge-endpoint-count">19 Endpoints</span>
+            </div>
+            <div class="brand-subtitle">Global Trade Treasury • Interactive Developer Portal</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Dual Viewer Mode Switcher -->
+      <div class="header-center">
+        <div class="segmented-control" role="tablist" aria-label="Viewer Style">
+          <button id="btn-view-scalar" class="segment-btn active" role="tab" aria-selected="true" title="Scalar - Modern interactive API client with testing console">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Scalar</span>
+          </button>
+          <button id="btn-view-redoc" class="segment-btn" role="tab" aria-selected="false" title="Redoc - Clean 3-panel enterprise reference specification">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Redoc</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Actions & Theme Toggle -->
+      <div class="header-right">
+        <span class="badge badge-live" title="Live OpenAPI sync enabled">Live Spec</span>
+        
+        <button id="btn-copy-url" class="action-btn" title="Copy live OpenAPI JSON URL">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy URL</span>
+        </button>
+
+        <button id="btn-download-spec" class="action-btn" title="Download OpenAPI JSON Spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download JSON</span>
+        </button>
+
+        <button id="theme-toggle-btn" class="action-btn icon-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Viewports Area -->
+    <main class="viewports-wrapper">
+      <!-- Loading State -->
+      <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Loading GTT Business Client API Documentation...</p>
+      </div>
+
+      <!-- Scalar Container -->
+      <div id="pane-scalar" class="viewer-pane active" role="tabpanel" aria-label="Scalar Documentation"></div>
+
+      <!-- Redoc Container -->
+      <div id="pane-redoc" class="viewer-pane" role="tabpanel" aria-label="Redoc Documentation"></div>
+    </main>
+
+    <!-- Toast Feedback -->
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="toast-msg">Notification</span>
+    </div>
+  </div>
+
+  <!-- Documentation Engines -->
+  <script src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+
+  <!-- App Controller -->
+  <script src="src/app.js"></script>
+</body>
+</html>
