@@ -11,7 +11,7 @@
 
   const state = {
     currentViewer: localStorage.getItem('gtt_docs_viewer') || 'scalar', // 'scalar' | 'redoc'
-    currentTheme: localStorage.getItem('gtt_docs_theme') || 'dark',     // 'dark' | 'light'
+    currentTheme: localStorage.getItem('gtt_docs_theme') || 'light',    // 'light' | 'dark'
     specSource: 'auto', // 'live' | 'local' | 'auto'
     specData: null,
     isInitialized: {
@@ -50,9 +50,15 @@
   function applyTheme(theme) {
     state.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.remove('dark', 'light', 'dark-mode', 'light-mode');
+    document.documentElement.classList.add(theme, `${theme}-mode`);
+    if (document.body) {
+      document.body.classList.remove('dark', 'light', 'dark-mode', 'light-mode');
+      document.body.classList.add(theme, `${theme}-mode`);
+    }
     localStorage.setItem('gtt_docs_theme', theme);
 
-    // Update Theme toggle button icon
+    // Update Theme toggle button icon & title
     if (elements.themeBtn) {
       elements.themeBtn.innerHTML = theme === 'dark'
         ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
@@ -60,9 +66,15 @@
       elements.themeBtn.title = `Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`;
     }
 
-    // Re-initialize Redoc if active/initialized to reflect theme changes
-    if (state.isInitialized.redoc && state.specData) {
-      renderRedoc(state.specData);
+    // Re-render active viewer to ensure content area reflects theme changes immediately
+    if (state.specData) {
+      if (state.currentViewer === 'scalar') {
+        renderScalar(state.specData);
+        state.isInitialized.redoc = false;
+      } else if (state.currentViewer === 'redoc') {
+        renderRedoc(state.specData);
+        state.isInitialized.scalar = false;
+      }
     }
   }
 
@@ -162,6 +174,7 @@
         const script = document.createElement('script');
         script.id = 'api-reference';
         script.type = 'application/json';
+        script.dataset.configuration = JSON.stringify({ darkMode: isDark });
         script.textContent = specString;
         scalarContainer.appendChild(script);
 
@@ -188,13 +201,13 @@
     const redocOptions = {
       theme: {
         colors: {
-          primary: { main: '#6366f1' },
+          primary: { main: isDark ? '#6366f1' : '#4f46e5' },
           success: { main: '#10b981' },
           warning: { main: '#f59e0b' },
           error: { main: '#ef4444' },
           text: {
-            primary: isDark ? '#f3f4f6' : '#111827',
-            secondary: isDark ? '#9ca3af' : '#4b5563'
+            primary: isDark ? '#f3f4f6' : '#0f172a',
+            secondary: isDark ? '#9ca3af' : '#475569'
           },
           http: {
             get: '#3b82f6',
@@ -218,14 +231,24 @@
           }
         },
         sidebar: {
-          backgroundColor: isDark ? '#0b0f17' : '#f8fafc',
-          textColor: isDark ? '#d1d5db' : '#374151',
-          activeTextColor: '#6366f1',
+          backgroundColor: isDark ? '#0b0f17' : '#ffffff',
+          textColor: isDark ? '#d1d5db' : '#334155',
+          activeTextColor: isDark ? '#a5b4fc' : '#4f46e5',
           width: '280px'
         },
         rightPanel: {
-          backgroundColor: isDark ? '#121824' : '#1e293b',
+          backgroundColor: isDark ? '#121824' : '#f8fafc',
+          textColor: isDark ? '#f3f4f6' : '#0f172a',
           width: '40%'
+        },
+        codeBlock: {
+          backgroundColor: isDark ? '#0b0f17' : '#f1f5f9',
+          tokens: isDark ? {} : {}
+        },
+        schema: {
+          linesColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+          typeNameColor: isDark ? '#9ca3af' : '#64748b',
+          typeTitleColor: isDark ? '#e2e8f0' : '#1e293b'
         }
       },
       hideDownloadButton: true,

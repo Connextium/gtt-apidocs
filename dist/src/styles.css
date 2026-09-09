@@ -3,7 +3,35 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
   
-  /* Dark Theme Palette (Default) */
+  /* Light Theme Palette (Default) */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(99, 102, 241, 0.6);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --brand-primary: #4f46e5;
+  --brand-primary-hover: #4338ca;
+  --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  --brand-glow: rgba(79, 70, 229, 0.2);
+  
+  --badge-bg: rgba(79, 70, 229, 0.08);
+  --badge-text: #4338ca;
+  --badge-border: rgba(79, 70, 229, 0.2);
+
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-text: #059669;
+  --success-border: rgba(16, 185, 129, 0.25);
+
+  --header-height: 64px;
+}
+
+[data-theme="dark"] {
   --bg-primary: #0b0f17;
   --bg-surface: #121824;
   --bg-surface-elevated: #1a2233;
@@ -27,33 +55,6 @@
   --success-bg: rgba(16, 185, 129, 0.15);
   --success-text: #34d399;
   --success-border: rgba(16, 185, 129, 0.3);
-
-  --header-height: 64px;
-}
-
-[data-theme="light"] {
-  --bg-primary: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #f1f5f9;
-  --bg-hover: #e2e8f0;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-active: rgba(99, 102, 241, 0.6);
-  
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  
-  --brand-primary: #4f46e5;
-  --brand-primary-hover: #4338ca;
-  --brand-glow: rgba(79, 70, 229, 0.15);
-  
-  --badge-bg: rgba(79, 70, 229, 0.1);
-  --badge-text: #4338ca;
-  --badge-border: rgba(79, 70, 229, 0.2);
-
-  --success-bg: rgba(16, 185, 129, 0.1);
-  --success-text: #059669;
-  --success-border: rgba(16, 185, 129, 0.25);
 }
 
 * {
@@ -210,7 +211,7 @@ html, body {
 
 .segment-btn:hover {
   color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--bg-hover);
 }
 
 .segment-btn.active {
@@ -272,6 +273,7 @@ html, body {
   width: 100%;
   height: calc(100vh - var(--header-height));
   overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
 .viewer-pane {
@@ -286,12 +288,20 @@ html, body {
   transition: opacity 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
 }
 
 .viewer-pane.active {
   opacity: 1;
   pointer-events: auto;
   z-index: 10;
+}
+
+/* Scalar overrides */
+#scalar-root {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-primary);
 }
 
 /* Loading & Fallback Overlay */
@@ -346,9 +356,65 @@ html, body {
   opacity: 1;
 }
 
-/* Custom Redoc Overrides for dark theme integration */
+/* Custom Redoc Overrides */
 [data-theme="dark"] .redoc-wrap {
   background-color: #0b0f17 !important;
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .redoc-wrap .api-content {
+  background-color: #0b0f17 !important;
+}
+
+[data-theme="dark"] .redoc-wrap h1,
+[data-theme="dark"] .redoc-wrap h2,
+[data-theme="dark"] .redoc-wrap h3,
+[data-theme="dark"] .redoc-wrap h4,
+[data-theme="dark"] .redoc-wrap h5,
+[data-theme="dark"] .redoc-wrap h6 {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .redoc-wrap pre {
+  background-color: #0b0f17 !important;
+  color: #f3f4f6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .redoc-wrap {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .redoc-wrap .api-content {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .redoc-wrap h1,
+[data-theme="light"] .redoc-wrap h2,
+[data-theme="light"] .redoc-wrap h3,
+[data-theme="light"] .redoc-wrap h4,
+[data-theme="light"] .redoc-wrap h5,
+[data-theme="light"] .redoc-wrap h6 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .redoc-wrap pre {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .redoc-wrap code {
+  color: #4f46e5;
+}
+
+[data-theme="light"] .redoc-wrap table {
+  color: #0f172a;
+}
+
+[data-theme="light"] .redoc-wrap [data-section-id] {
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
 }
 
 /* Responsive adjust */
