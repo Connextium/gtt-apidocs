@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const LIVE_SPEC_URL = 'https://gtt-api.vercel.app/openapi/business-client.json';
+  const LIVE_SPEC_URL = 'https://gtt-api.connextium.xyz/openapi/business-client.json';
   const LOCAL_SPEC_URL = './openapi/business-client.json';
 
   const state = {
@@ -66,11 +66,29 @@
     }
   }
 
+  function normalizeSpec(spec, sourceUrl) {
+    if (!spec || typeof spec !== 'object') return spec;
+    try {
+      const origin = new URL(sourceUrl, window.location.href).origin;
+      if (origin && !origin.startsWith('http://localhost') && !origin.startsWith('http://127.0.0.1')) {
+        const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
+        const otherServers = existingServers.filter(s => s && s.url && s.url.replace(/\/+$/, '') !== origin.replace(/\/+$/, ''));
+        spec.servers = [
+          { url: origin, description: 'Production API Server' },
+          ...otherServers
+        ];
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+    return spec;
+  }
+
   // Fetch OpenAPI Spec with smart fallback
   async function loadSpec() {
     // 1. Check if spec is embedded statically in window
     if (window.__GTT_BUNDLED_SPEC__) {
-      state.specData = window.__GTT_BUNDLED_SPEC__;
+      state.specData = normalizeSpec(window.__GTT_BUNDLED_SPEC__, LIVE_SPEC_URL);
       return state.specData;
     }
 
@@ -86,14 +104,16 @@
         setTimeout(() => reject(new Error('Live fetch timeout')), 4000)
       );
 
-      state.specData = await Promise.race([livePromise, timeoutPromise]);
+      const rawSpec = await Promise.race([livePromise, timeoutPromise]);
+      state.specData = normalizeSpec(rawSpec, LIVE_SPEC_URL);
       return state.specData;
     } catch (liveErr) {
       console.warn('Live OpenAPI spec fetch failed or timed out. Falling back to local spec...', liveErr);
       try {
         const localRes = await fetch(LOCAL_SPEC_URL);
         if (!localRes.ok) throw new Error(`HTTP ${localRes.status}`);
-        state.specData = await localRes.json();
+        const localSpec = await localRes.json();
+        state.specData = normalizeSpec(localSpec, LIVE_SPEC_URL);
         return state.specData;
       } catch (localErr) {
         console.error('Failed to load local spec fallback:', localErr);

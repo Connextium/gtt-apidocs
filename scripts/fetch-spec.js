@@ -9,9 +9,36 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const SPEC_URL = process.env.OPENAPI_SPEC_URL || 'https://gtt-api.vercel.app/openapi/business-client.json';
+const SPEC_URL = process.env.OPENAPI_SPEC_URL || 'https://gtt-api.connextium.xyz/openapi/business-client.json';
 const OUTPUT_DIR = path.resolve(__dirname, '../openapi');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'business-client.json');
+
+function normalizeSpec(spec, sourceUrl) {
+  if (!spec || typeof spec !== 'object') return spec;
+
+  let serverOrigin = '';
+  try {
+    const parsedUrl = new URL(sourceUrl);
+    serverOrigin = parsedUrl.origin;
+  } catch (e) {
+    serverOrigin = sourceUrl;
+  }
+
+  if (serverOrigin) {
+    const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
+    const otherServers = existingServers.filter(s => s && s.url && s.url.replace(/\/+$/, '') !== serverOrigin.replace(/\/+$/, ''));
+
+    spec.servers = [
+      {
+        url: serverOrigin,
+        description: 'Production API Server'
+      },
+      ...otherServers
+    ];
+  }
+
+  return spec;
+}
 
 function fetchSpec(url) {
   return new Promise((resolve, reject) => {
@@ -29,7 +56,8 @@ function fetchSpec(url) {
       res.on('end', () => {
         try {
           const parsed = JSON.parse(data);
-          resolve(parsed);
+          const normalized = normalizeSpec(parsed, url);
+          resolve(normalized);
         } catch (err) {
           reject(new Error(`Invalid JSON received from ${url}: ${err.message}`));
         }

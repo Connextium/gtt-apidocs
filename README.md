@@ -2,7 +2,7 @@
 
 A high-performance, responsive web application for exploring and testing the **Global Trade Treasury (GTT) Business Client API** with instant switching between **Scalar** and **Redoc**.
 
-- **OpenAPI Source**: [https://gtt-api.vercel.app/openapi/business-client.json](https://gtt-api.vercel.app/openapi/business-client.json)
+- **OpenAPI Source**: [https://gtt-api.connextium.xyz/openapi/business-client.json](https://gtt-api.connextium.xyz/openapi/business-client.json)
 - **Supported Modes**:
   - **Option 1: Live Running Online** (fetches & parses upstream spec dynamically)
   - **Option 2: Batch Generation & Static Deployment** (pre-bundles standalone HTML for check-in and zero-dependency static hosting)
