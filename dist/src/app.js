@@ -161,6 +161,7 @@
 
       if (window.Scalar && typeof window.Scalar.createApiReference === 'function') {
         window.Scalar.createApiReference(scalarContainer, {
+          url: LIVE_SPEC_URL,
           content: specString,
           darkMode: isDark,
           layout: 'modern',
