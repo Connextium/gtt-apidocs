@@ -8,6 +8,7 @@
 
   const LIVE_SPEC_URL = 'https://gtt-api.connextium.xyz/openapi/business-client.json';
   const LOCAL_SPEC_URL = './openapi/business-client.json';
+  const PUBLISHED_SPEC_PATH = '/openapi/business-client.json';
 
   const state = {
     currentViewer: localStorage.getItem('gtt_docs_viewer') || 'scalar', // 'scalar' | 'redoc'
@@ -19,6 +20,18 @@
       redoc: false
     }
   };
+
+  function getPublishedSpecUrl() {
+    try {
+      return new URL(PUBLISHED_SPEC_PATH, window.location.origin).toString();
+    } catch (_) {
+      return PUBLISHED_SPEC_PATH;
+    }
+  }
+
+  function getScalarSpecUrl() {
+    return getPublishedSpecUrl();
+  }
 
   // DOM Elements
   const elements = {
@@ -161,7 +174,8 @@
 
       if (window.Scalar && typeof window.Scalar.createApiReference === 'function') {
         window.Scalar.createApiReference(scalarContainer, {
-          url: LIVE_SPEC_URL,
+          // Keep a stable public spec URL so Scalar's "Open API Client" always loads a JSON document.
+          url: getScalarSpecUrl(),
           content: specString,
           darkMode: isDark,
           layout: 'modern',
@@ -174,7 +188,7 @@
         });
       } else if (window.Scalar && typeof window.Scalar.createScalarReferences === 'function') {
         window.Scalar.createScalarReferences(scalarContainer, {
-          spec: { content: spec },
+          spec: { url: getScalarSpecUrl(), content: spec },
           darkMode: isDark,
           showSidebar: true,
           hideDownloadButton: true
@@ -184,7 +198,10 @@
         const script = document.createElement('script');
         script.id = 'api-reference';
         script.type = 'application/json';
-        script.dataset.configuration = JSON.stringify({ darkMode: isDark });
+        script.dataset.configuration = JSON.stringify({
+          url: getScalarSpecUrl(),
+          darkMode: isDark
+        });
         script.textContent = specString;
         scalarContainer.appendChild(script);
 
@@ -324,7 +341,7 @@
 
   // Copy Live Spec URL
   function copySpecUrl() {
-    navigator.clipboard.writeText(LIVE_SPEC_URL).then(() => {
+    navigator.clipboard.writeText(getScalarSpecUrl()).then(() => {
       showToast('Copied OpenAPI URL to clipboard!');
     }).catch(() => {
       showToast('Failed to copy URL');
