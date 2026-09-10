@@ -172,11 +172,14 @@
       const isDark = state.currentTheme === 'dark';
       const specString = typeof spec === 'string' ? spec : JSON.stringify(spec);
 
+      const specConfig = state.specSource === 'local'
+        ? { content: spec }
+        : { url: LIVE_SPEC_URL };
+
       if (window.Scalar && typeof window.Scalar.createApiReference === 'function') {
         window.Scalar.createApiReference(scalarContainer, {
           // Keep a stable public spec URL so Scalar's "Open API Client" always loads a JSON document.
-          url: getScalarSpecUrl(),
-          content: specString,
+          spec: specConfig,
           darkMode: isDark,
           layout: 'modern',
           showSidebar: true,
@@ -188,7 +191,7 @@
         });
       } else if (window.Scalar && typeof window.Scalar.createScalarReferences === 'function') {
         window.Scalar.createScalarReferences(scalarContainer, {
-          spec: { url: getScalarSpecUrl(), content: spec },
+          spec: specConfig,
           darkMode: isDark,
           showSidebar: true,
           hideDownloadButton: true
