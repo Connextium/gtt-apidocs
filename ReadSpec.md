@@ -6,9 +6,11 @@ This document details how the **Global Trade Treasury (GTT) Business Client API*
 
 ## 1. OpenAPI Spec Lifecycle & Normalization
 
-### Upstream Source
+### Upstream Source & Artifacts
 - **Live Endpoint**: `https://gtt-api.connextium.xyz/openapi/business-client.json`
-- **Cached Local Path**: `openapi/business-client.json`
+- **Cached Local JSON**: `openapi/business-client.json`
+- **Generated Local YAML**: `openapi/business-client.yaml`
+- **Static Distribution**: `dist/openapi/business-client.json` & `dist/openapi/business-client.yaml`
 
 ### Fetch & Normalization (`scripts/fetch-spec.js`)
 When running `npm run fetch-spec` or during the automated daily CI/CD workflow:
@@ -27,7 +29,7 @@ When running `npm run fetch-spec` or during the automated daily CI/CD workflow:
      }
    ]
    ```
-4. **Formatting**: Pretty-prints and saves to `openapi/business-client.json`.
+4. **Formatting & Export**: Pretty-prints and saves to `openapi/business-client.json`, and parses + stringifies to `openapi/business-client.yaml`.
 
 ---
 

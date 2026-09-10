@@ -41,6 +41,7 @@
     paneScalar: document.getElementById('pane-scalar'),
     paneRedoc: document.getElementById('pane-redoc'),
     downloadBtn: document.getElementById('btn-download-spec'),
+    downloadYamlBtn: document.getElementById('btn-download-yaml'),
     copyUrlBtn: document.getElementById('btn-copy-url'),
     loadingOverlay: document.getElementById('loading-overlay'),
     endpointCount: document.getElementById('endpoint-count'),
@@ -342,6 +343,57 @@
     showToast('Downloaded OpenAPI JSON');
   }
 
+  // Download Spec as YAML
+  async function downloadSpecYAML() {
+    if (!state.specData) {
+      showToast('Spec not loaded yet');
+      return;
+    }
+
+    try {
+      // 1. Try to fetch static YAML file
+      const res = await fetch('./openapi/business-client.yaml');
+      if (res.ok) {
+        const text = await res.text();
+        const blob = new Blob([text], { type: 'text/yaml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gtt-business-client-openapi-${state.specData.info?.version || 'v1'}.yaml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Downloaded OpenAPI YAML');
+        return;
+      }
+    } catch (_) {}
+
+    // 2. Client-side serialization fallback using js-yaml
+    if (window.jsyaml && typeof window.jsyaml.dump === 'function') {
+      try {
+        const yamlStr = window.jsyaml.dump(state.specData, { noRefs: true, lineWidth: -1 });
+        const blob = new Blob([yamlStr], { type: 'text/yaml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gtt-business-client-openapi-${state.specData.info?.version || 'v1'}.yaml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Downloaded OpenAPI YAML');
+        return;
+      } catch (err) {
+        console.error('Failed to serialize YAML client-side:', err);
+      }
+    }
+
+    // 3. Fallback direct link
+    window.open('./openapi/business-client.yaml', '_blank');
+    showToast('Opening OpenAPI YAML');
+  }
+
   // Copy Live Spec URL
   function copySpecUrl() {
     navigator.clipboard.writeText(getScalarSpecUrl()).then(() => {
@@ -451,6 +503,7 @@
     elements.btnRedoc?.addEventListener('click', () => switchViewer('redoc'));
 
     elements.downloadBtn?.addEventListener('click', downloadSpecJSON);
+    elements.downloadYamlBtn?.addEventListener('click', downloadSpecYAML);
     elements.copyUrlBtn?.addEventListener('click', copySpecUrl);
 
     // Ask AI triggers

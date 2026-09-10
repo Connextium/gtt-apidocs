@@ -7,7 +7,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { fetchSpec, SPEC_URL, OUTPUT_FILE: LOCAL_SPEC_FILE } = require('./fetch-spec');
+const YAML = require('yaml');
+const { fetchSpec, SPEC_URL, OUTPUT_FILE: LOCAL_SPEC_FILE, OUTPUT_YAML_FILE: LOCAL_YAML_FILE } = require('./fetch-spec');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
@@ -38,10 +39,17 @@ async function build() {
   fs.mkdirSync(path.join(DIST_DIR, 'openapi'), { recursive: true });
   fs.mkdirSync(path.join(DIST_DIR, 'src'), { recursive: true });
 
-  // 3. Copy spec JSON to dist/openapi/
+  // 3. Copy spec JSON and YAML to dist/openapi/
   fs.writeFileSync(
     path.join(DIST_DIR, 'openapi', 'business-client.json'),
     JSON.stringify(spec, null, 2),
+    'utf8'
+  );
+
+  const yamlString = YAML.stringify(spec);
+  fs.writeFileSync(
+    path.join(DIST_DIR, 'openapi', 'business-client.yaml'),
+    yamlString,
     'utf8'
   );
 
@@ -67,12 +75,14 @@ async function build() {
 
   // 6. Generate summary stats
   const distHtmlSize = (fs.statSync(path.join(DIST_DIR, 'index.html')).size / 1024).toFixed(2);
-  const specSize = (fs.statSync(path.join(DIST_DIR, 'openapi', 'business-client.json')).size / 1024).toFixed(2);
+  const specJsonSize = (fs.statSync(path.join(DIST_DIR, 'openapi', 'business-client.json')).size / 1024).toFixed(2);
+  const specYamlSize = (fs.statSync(path.join(DIST_DIR, 'openapi', 'business-client.yaml')).size / 1024).toFixed(2);
 
   console.log('\x1b[32m✔ Static build completed successfully!\x1b[0m');
   console.log(`  - Output directory: \x1b[34mdist/\x1b[0m`);
   console.log(`  - Standalone HTML:  \x1b[34mdist/index.html\x1b[0m (${distHtmlSize} KB, pre-bundled spec)`);
-  console.log(`  - Static OpenAPI:   \x1b[34mdist/openapi/business-client.json\x1b[0m (${specSize} KB)`);
+  console.log(`  - Static JSON Spec: \x1b[34mdist/openapi/business-client.json\x1b[0m (${specJsonSize} KB)`);
+  console.log(`  - Static YAML Spec: \x1b[34mdist/openapi/business-client.yaml\x1b[0m (${specYamlSize} KB)`);
   console.log(`  - API Title:        \x1b[1m${spec.info?.title}\x1b[0m`);
   console.log(`  - Version:          ${spec.info?.version}`);
   console.log(`  - Paths count:      ${Object.keys(spec.paths || {}).length}`);

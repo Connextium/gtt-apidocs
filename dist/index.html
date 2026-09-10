@@ -75,7 +75,16 @@
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          <span>Download JSON</span>
+          <span>JSON</span>
+        </button>
+
+        <button id="btn-download-yaml" class="action-btn" title="Download OpenAPI YAML Spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>YAML</span>
         </button>
 
         <button id="theme-toggle-btn" class="action-btn icon-btn" title="Switch to Dark Mode" aria-label="Toggle Theme">
@@ -177,7 +186,8 @@
     </div>
   </div>
 
-  <!-- Documentation Engines -->
+  <!-- Documentation Engines & Serializers -->
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 

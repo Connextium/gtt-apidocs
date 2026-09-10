@@ -9,9 +9,12 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
+const YAML = require('yaml');
+
 const SPEC_URL = process.env.OPENAPI_SPEC_URL || 'https://gtt-api.connextium.xyz/openapi/business-client.json';
 const OUTPUT_DIR = path.resolve(__dirname, '../openapi');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'business-client.json');
+const OUTPUT_YAML_FILE = path.join(OUTPUT_DIR, 'business-client.yaml');
 
 function normalizeSpec(spec, sourceUrl) {
   if (!spec || typeof spec !== 'object') return spec;
@@ -94,8 +97,16 @@ async function main() {
     // Write formatted JSON
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(spec, null, 2), 'utf8');
 
-    console.log(`\x1b[32m✔ Successfully fetched and saved OpenAPI spec!\x1b[0m`);
-    console.log(`  - File: \x1b[34m${path.relative(process.cwd(), OUTPUT_FILE)}\x1b[0m`);
+    // Write formatted YAML
+    const yamlString = YAML.stringify(spec);
+    fs.writeFileSync(OUTPUT_YAML_FILE, yamlString, 'utf8');
+
+    const jsonSize = (fs.statSync(OUTPUT_FILE).size / 1024).toFixed(2);
+    const yamlSize = (fs.statSync(OUTPUT_YAML_FILE).size / 1024).toFixed(2);
+
+    console.log(`\x1b[32m✔ Successfully fetched and saved OpenAPI spec in JSON and YAML!\x1b[0m`);
+    console.log(`  - JSON File: \x1b[34m${path.relative(process.cwd(), OUTPUT_FILE)}\x1b[0m (${jsonSize} KB)`);
+    console.log(`  - YAML File: \x1b[34m${path.relative(process.cwd(), OUTPUT_YAML_FILE)}\x1b[0m (${yamlSize} KB)`);
     console.log(`  - API Title: \x1b[1m${title}\x1b[0m (v${version})`);
     console.log(`  - OpenAPI Spec Version: ${openapiVersion}`);
     console.log(`  - Endpoints (paths): ${pathCount}`);
@@ -113,4 +124,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { fetchSpec, SPEC_URL, OUTPUT_FILE };
+module.exports = { fetchSpec, SPEC_URL, OUTPUT_FILE, OUTPUT_YAML_FILE };

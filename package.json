@@ -18,5 +18,8 @@
     "gtt"
   ],
   "author": "Connextium",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.9.0"
+  }
 }

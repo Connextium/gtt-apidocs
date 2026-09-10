@@ -18,11 +18,12 @@ A high-performance, responsive web application for exploring and testing the **G
 - 📦 **Dual Generation Architecture**:
   - **Live Mode**: Dynamic browser rendering with offline fallback.
   - **Static Mode**: Bundles the spec directly into `dist/index.html` for zero-latency, 100% reliable static hosting.
-- 📥 **Quick Spec Tools**: 1-click OpenAPI JSON download, live URL copy, and endpoint counter.
+- 📥 **Quick Spec Tools**: 1-click OpenAPI JSON and YAML download, live URL copy, and endpoint counter.
 - ⌨️ **Keyboard Shortcuts**:
   - `1`: Switch to **Modern (Scalar)**
   - `2`: Switch to **Classic (Redoc)**
   - `T`: Toggle **Dark / Light Theme**
+  - `/` or `Cmd+K`: Open **Ask GTT AI**
 
 ---
 
@@ -47,9 +48,9 @@ npm run build
 ```
 
 This will:
-1. Fetch and validate the latest OpenAPI JSON from upstream.
-2. Save a formatted copy to `openapi/business-client.json`.
-3. Compile a self-contained `dist/index.html` with the embedded spec.
+1. Fetch and validate the latest OpenAPI specification from upstream.
+2. Save formatted copies to `openapi/business-client.json` and `openapi/business-client.yaml`.
+3. Compile a self-contained `dist/index.html` with the embedded spec and static distribution files (`dist/openapi/business-client.json` and `dist/openapi/business-client.yaml`).
 
 Preview the static distribution:
 ```bash
@@ -66,12 +67,13 @@ gtt-apidocs/
 ├── package.json                   # Scripts and project metadata
 ├── README.md                      # Documentation
 ├── openapi/
-│   └── business-client.json       # Cached / version-controlled OpenAPI 3.1.0 spec
+│   ├── business-client.json       # Cached / version-controlled OpenAPI JSON spec
+│   └── business-client.yaml       # Generated OpenAPI YAML specification
 ├── src/
 │   ├── app.js                     # Dual-engine controller (Scalar & Redoc)
 │   └── styles.css                 # Custom theme & header layout
 ├── scripts/
-│   ├── fetch-spec.js              # Upstream OpenAPI fetcher & validator
+│   ├── fetch-spec.js              # Upstream OpenAPI fetcher (JSON & YAML generator)
 │   ├── build-static.js            # Standalone static distribution compiler
 │   └── dev-server.js              # Zero-dependency local dev/preview server
 └── .github/workflows/
