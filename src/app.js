@@ -97,7 +97,7 @@
       if (sourceUrl) {
         try {
           serverOrigin = new URL(sourceUrl, window.location.href).origin;
-        } catch (_) {}
+        } catch (_) { }
       }
       const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
       // Filter out any local dev addresses and duplicates of serverOrigin
@@ -173,34 +173,34 @@
       const isDark = state.currentTheme === 'dark';
       const specString = typeof spec === 'string' ? spec : JSON.stringify(spec);
 
+      const customFetch = async (input, init) => {
+        const targetUrl = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+        if (targetUrl && (targetUrl.includes('/openapi/business-client.json') || targetUrl === LIVE_SPEC_URL)) {
+          return new Response(specString, {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        return fetch(input, init);
+      };
+
+      const scalarConfig = {
+        url: LIVE_SPEC_URL,
+        customFetch: customFetch,
+        darkMode: isDark,
+        layout: 'modern',
+        showSidebar: true,
+        hideDownloadButton: true,
+        proxyUrl: 'https://proxy.scalar.com',
+        metaData: {
+          title: (typeof spec === 'object' && spec?.info?.title) || 'GTT Business Client API'
+        }
+      };
+
       if (window.Scalar && typeof window.Scalar.createApiReference === 'function') {
-        window.Scalar.createApiReference(scalarContainer, {
-          spec: {
-            url: LIVE_SPEC_URL,
-            content: spec
-          },
-          url: LIVE_SPEC_URL,
-          content: specString,
-          darkMode: isDark,
-          layout: 'modern',
-          showSidebar: true,
-          hideDownloadButton: true,
-          proxyUrl: 'https://proxy.scalar.com',
-          metaData: {
-            title: spec.info?.title || 'GTT Business Client API'
-          }
-        });
+        window.Scalar.createApiReference(scalarContainer, scalarConfig);
       } else if (window.Scalar && typeof window.Scalar.createScalarReferences === 'function') {
-        window.Scalar.createScalarReferences(scalarContainer, {
-          spec: {
-            url: LIVE_SPEC_URL,
-            content: spec
-          },
-          url: LIVE_SPEC_URL,
-          darkMode: isDark,
-          showSidebar: true,
-          hideDownloadButton: true
-        });
+        window.Scalar.createScalarReferences(scalarContainer, scalarConfig);
       } else {
         // Declarative CDN fallback
         const script = document.createElement('script');
@@ -371,7 +371,7 @@
         showToast('Downloaded OpenAPI YAML');
         return;
       }
-    } catch (_) {}
+    } catch (_) { }
 
     // 2. Client-side serialization fallback using js-yaml
     if (window.jsyaml && typeof window.jsyaml.dump === 'function') {
