@@ -6,7 +6,9 @@
 (function () {
   'use strict';
 
-  const LIVE_SPEC_URL = 'https://gtt-api.connextium.xyz/openapi/business-client.json';
+  const API_BASE_URL = (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL)
+    || 'https://gtt-api.connextium.xyz';
+  const LIVE_SPEC_URL = `${API_BASE_URL.replace(/\/+$/, '')}/openapi/business-client.json`;
   const LOCAL_SPEC_URL = './openapi/business-client.json';
   const PUBLISHED_SPEC_PATH = '/openapi/business-client.json';
 
@@ -104,17 +106,28 @@
   function normalizeSpec(spec, sourceUrl) {
     if (!spec || typeof spec !== 'object') return spec;
     try {
-      const origin = new URL(sourceUrl, window.location.href).origin;
-      if (origin && !origin.startsWith('http://localhost') && !origin.startsWith('http://127.0.0.1')) {
-        const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
-        const otherServers = existingServers.filter(s => s && s.url && s.url.replace(/\/+$/, '') !== origin.replace(/\/+$/, ''));
-        spec.servers = [
-          { url: origin, description: 'Production API Server' },
-          ...otherServers
-        ];
+      let serverOrigin = API_BASE_URL.replace(/\/+$/, '');
+      if (sourceUrl) {
+        try {
+          serverOrigin = new URL(sourceUrl, window.location.href).origin;
+        } catch (_) {}
       }
+      const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
+      // Filter out any local dev addresses and duplicates of serverOrigin
+      const otherServers = existingServers.filter(s =>
+        s && s.url &&
+        !s.url.includes('localhost') &&
+        !s.url.includes('127.0.0.1') &&
+        s.url.replace(/\/+$/, '') !== serverOrigin.replace(/\/+$/, '')
+      );
+      spec.servers = [
+        { url: serverOrigin, description: 'Production API Server' },
+        ...otherServers
+      ];
     } catch (e) {
-      // Ignore URL parsing errors
+      spec.servers = [
+        { url: API_BASE_URL, description: 'Production API Server' }
+      ];
     }
     return spec;
   }
@@ -173,14 +186,9 @@
       const isDark = state.currentTheme === 'dark';
       const specString = typeof spec === 'string' ? spec : JSON.stringify(spec);
 
-      const specConfig = state.specSource === 'local'
-        ? { content: spec }
-        : { url: LIVE_SPEC_URL };
-
       if (window.Scalar && typeof window.Scalar.createApiReference === 'function') {
         window.Scalar.createApiReference(scalarContainer, {
-          // Keep a stable public spec URL so Scalar's "Open API Client" always loads a JSON document.
-          spec: specConfig,
+          spec: { content: spec },
           darkMode: isDark,
           layout: 'modern',
           showSidebar: true,
@@ -192,7 +200,7 @@
         });
       } else if (window.Scalar && typeof window.Scalar.createScalarReferences === 'function') {
         window.Scalar.createScalarReferences(scalarContainer, {
-          spec: specConfig,
+          spec: { content: spec },
           darkMode: isDark,
           showSidebar: true,
           hideDownloadButton: true

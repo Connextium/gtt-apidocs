@@ -7,8 +7,6 @@ info:
 servers:
   - url: https://gtt-api.connextium.xyz
     description: Production API Server
-  - url: http://localhost:4000
-    description: Local development server
 tags:
   - name: Business Auth
     description: API-first business-user authentication endpoints.

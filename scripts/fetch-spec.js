@@ -11,7 +11,32 @@ const https = require('https');
 
 const YAML = require('yaml');
 
-const SPEC_URL = process.env.OPENAPI_SPEC_URL || 'https://gtt-api.connextium.xyz/openapi/business-client.json';
+// Load environment variables from .env.local or .env if present
+function loadEnv() {
+  const envFiles = ['.env.local', '.env'];
+  for (const file of envFiles) {
+    const envPath = path.resolve(__dirname, '..', file);
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split('\n').forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const idx = trimmed.indexOf('=');
+          const key = trimmed.slice(0, idx).trim();
+          const val = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      });
+    }
+  }
+}
+loadEnv();
+
+const DEFAULT_API_BASE_URL = 'https://gtt-api.connextium.xyz';
+const API_BASE_URL = process.env.API_BASE_URL || DEFAULT_API_BASE_URL;
+const SPEC_URL = `${API_BASE_URL.replace(/\/+$/, '')}/openapi/business-client.json`;
 const OUTPUT_DIR = path.resolve(__dirname, '../openapi');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'business-client.json');
 const OUTPUT_YAML_FILE = path.join(OUTPUT_DIR, 'business-client.yaml');
@@ -19,17 +44,22 @@ const OUTPUT_YAML_FILE = path.join(OUTPUT_DIR, 'business-client.yaml');
 function normalizeSpec(spec, sourceUrl) {
   if (!spec || typeof spec !== 'object') return spec;
 
-  let serverOrigin = '';
+  let serverOrigin = API_BASE_URL.replace(/\/+$/, '');
   try {
-    const parsedUrl = new URL(sourceUrl);
+    const parsedUrl = new URL(sourceUrl || API_BASE_URL);
     serverOrigin = parsedUrl.origin;
   } catch (e) {
-    serverOrigin = sourceUrl;
+    serverOrigin = (sourceUrl || API_BASE_URL).replace(/\/+$/, '');
   }
 
   if (serverOrigin) {
     const existingServers = Array.isArray(spec.servers) ? spec.servers : [];
-    const otherServers = existingServers.filter(s => s && s.url && s.url.replace(/\/+$/, '') !== serverOrigin.replace(/\/+$/, ''));
+    const otherServers = existingServers.filter(s =>
+      s && s.url &&
+      !s.url.includes('localhost') &&
+      !s.url.includes('127.0.0.1') &&
+      s.url.replace(/\/+$/, '') !== serverOrigin.replace(/\/+$/, '')
+    );
 
     spec.servers = [
       {
@@ -124,4 +154,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { fetchSpec, SPEC_URL, OUTPUT_FILE, OUTPUT_YAML_FILE };
+module.exports = { fetchSpec, SPEC_URL, OUTPUT_FILE, OUTPUT_YAML_FILE, API_BASE_URL };

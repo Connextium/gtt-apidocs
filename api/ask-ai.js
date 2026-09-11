@@ -57,10 +57,11 @@ module.exports = async function handler(req, res) {
             `- ${method.toUpperCase()} ${apiPath}: ${op.summary || op.description || ''}`
           ).join('\n');
         }).join('\n');
-    }
+    const DEFAULT_API_BASE_URL = 'https://gtt-api.connextium.xyz';
+    const apiBaseUrl = process.env.API_BASE_URL || DEFAULT_API_BASE_URL;
 
     const systemPrompt = `You are the technical AI assistant for the Global Trade Treasury (GTT) Business Client API.
-API Base URL: https://gtt-api.connextium.xyz
+API Base URL: ${apiBaseUrl}
 
 Available Endpoints:
 ${specSummary}

@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const YAML = require('yaml');
-const { fetchSpec, SPEC_URL, OUTPUT_FILE: LOCAL_SPEC_FILE, OUTPUT_YAML_FILE: LOCAL_YAML_FILE } = require('./fetch-spec');
+const { fetchSpec, SPEC_URL, OUTPUT_FILE: LOCAL_SPEC_FILE, OUTPUT_YAML_FILE: LOCAL_YAML_FILE, API_BASE_URL } = require('./fetch-spec');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
@@ -58,9 +58,12 @@ async function build() {
   const cssContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'styles.css'), 'utf8');
   const jsContent = fs.readFileSync(path.join(ROOT_DIR, 'src', 'app.js'), 'utf8');
 
-  // Copy CSS and JS to dist/src for modular assets
+  // Copy CSS and JS to dist/src for modular assets (inject configured API_BASE_URL if customized)
+  const processedJs = API_BASE_URL !== 'https://gtt-api.connextium.xyz'
+    ? jsContent.replace('https://gtt-api.connextium.xyz', API_BASE_URL)
+    : jsContent;
   fs.writeFileSync(path.join(DIST_DIR, 'src', 'styles.css'), cssContent, 'utf8');
-  fs.writeFileSync(path.join(DIST_DIR, 'src', 'app.js'), jsContent, 'utf8');
+  fs.writeFileSync(path.join(DIST_DIR, 'src', 'app.js'), processedJs, 'utf8');
 
   // 5. Create Standalone Inlined HTML (Option 2 deployable static file)
   // Embed the spec directly into window.__GTT_BUNDLED_SPEC__ for instant zero-fetch loading
