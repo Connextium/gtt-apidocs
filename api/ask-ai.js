@@ -47,16 +47,27 @@ module.exports = async function handler(req, res) {
 
   try {
     // 1. Read the OpenAPI schema for context
-    const specPath = path.join(process.cwd(), 'openapi/business-client.json');
+    const specPaths = [
+      path.join(process.cwd(), 'openapi/business-client.json'),
+      path.join(__dirname, '../openapi/business-client.json'),
+      path.join(__dirname, 'openapi/business-client.json')
+    ];
     let specSummary = '';
-    if (fs.existsSync(specPath)) {
-      const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
-      specSummary = Object.entries(spec.paths || {})
-        .map(([apiPath, methods]) => {
-          return Object.entries(methods).map(([method, op]) => 
-            `- ${method.toUpperCase()} ${apiPath}: ${op.summary || op.description || ''}`
-          ).join('\n');
-        }).join('\n');
+    for (const p of specPaths) {
+      if (fs.existsSync(p)) {
+        try {
+          const spec = JSON.parse(fs.readFileSync(p, 'utf8'));
+          specSummary = Object.entries(spec.paths || {})
+            .map(([apiPath, methods]) => {
+              return Object.entries(methods).map(([method, op]) => 
+                `- ${method.toUpperCase()} ${apiPath}: ${op.summary || op.description || ''}`
+              ).join('\n');
+            }).join('\n');
+          break;
+        } catch (_) {}
+      }
+    }
+
     const DEFAULT_API_BASE_URL = 'https://gtt-api.connextium.xyz';
     const apiBaseUrl = process.env.API_BASE_URL || DEFAULT_API_BASE_URL;
 

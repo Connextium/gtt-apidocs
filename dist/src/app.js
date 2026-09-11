@@ -480,7 +480,13 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: userQuery })
     });
-    const data = await response.json();
+    const rawText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (_) {
+      throw new Error(`Server returned HTTP ${response.status}: ${rawText.slice(0, 150)}`);
+    }
     if (!response.ok || data.error) {
       throw new Error(data.error || `HTTP ${response.status}`);
     }
